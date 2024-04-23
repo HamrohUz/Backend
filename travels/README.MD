@@ -33,35 +33,30 @@ This API contains 6 apps that provide functionality for driver and passenger:
 travels
 ├── src
 │   ├── travel_create_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
 │   ├── passenger_application_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
 │   ├── travel_progress_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
 │   ├── rating_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
 │   ├── notification_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
 │   ├── travel_data_app
-│   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── router.py
 │   │   └── utils.py
+│   ├── models.py
 │   ├── config.py
 │   ├── database.py
 │   └── main.py
