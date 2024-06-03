@@ -13,10 +13,14 @@ class AuthServiceImpl(
     private val userRepository: UserRepository
 ): AuthService  {
     override fun changePassword(email: String, newPassword: String): PasswordChangeStatus {
-        val user = userRepository.findByEmail(email)
-        val encodedPassword = bCryptPasswordEncoder.encode(newPassword)
-        val updatedUser = user?.copy(password = encodedPassword)
-        updatedUser?.let { userRepository.save(it) }
-        return PasswordChangeStatus.UPDATE_SUCCESS
+        try {
+            val user = userRepository.findByEmail(email)
+            val encodedPassword = bCryptPasswordEncoder.encode(newPassword)
+            val updatedUser = user?.copy(password = encodedPassword)
+            updatedUser?.let { userRepository.save(it) }
+            return PasswordChangeStatus.UPDATE_SUCCESS
+        } catch (throwable: Throwable) {
+            return PasswordChangeStatus.UNKNOWN_ERROR
+        }
     }
 }

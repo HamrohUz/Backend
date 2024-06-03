@@ -50,7 +50,7 @@ class AuthController(
 
         if (!isRegisteredUser) {
             return createHttpResponse(
-                status = HttpStatus.NOT_ACCEPTABLE,
+                status = HttpStatus.NOT_FOUND,
                 message = "You need to sign up"
             )
         }
@@ -88,7 +88,7 @@ class AuthController(
             }
             else -> {
                 createHttpResponse(
-                    status = HttpStatus.NOT_FOUND,
+                    status = HttpStatus.INTERNAL_SERVER_ERROR,
                     message = "Unexpected error"
                 )
             }
@@ -132,15 +132,18 @@ class AuthController(
                 newPassword = resetPasswordRequest.newPassword
             )
             return when (status) {
-                PasswordChangeStatus.INVALID_PASSWORD -> createHttpResponse(
+                PasswordChangeStatus.UNKNOWN_ERROR -> createHttpResponse(
                     HttpStatus.BAD_REQUEST,
                     message = "Old password does not match"
                 )
-
-                PasswordChangeStatus.UPDATE_SUCCESS -> createHttpResponse(
-                    HttpStatus.OK,
-                    message = "Password is updated"
-                )
+                PasswordChangeStatus.UPDATE_SUCCESS -> {
+                    val jwt = jwtService.generateToken(resetPasswordRequest.email)
+                    createHttpResponse(
+                        HttpStatus.OK,
+                        message = "Password is updated",
+                        data = mapOf("token" to jwt)
+                    )
+                }
             }
         } else {
             return createHttpResponse(

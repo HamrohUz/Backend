@@ -6,6 +6,6 @@ object AuthDto {
     data class LoginRequest(val email: String, val password: String)
     data class OtpCodeRequest(val email: String)
     data class EmailVerificationRequest(val email: String)
-    data class ResetPasswordRequest(val email: String, val previousPassword: String, val newPassword: String)
+    data class ResetPasswordRequest(val email: String, val newPassword: String)
     data class LoginResponse(val name: String, val contactNumber: String, val email: String, )
 }

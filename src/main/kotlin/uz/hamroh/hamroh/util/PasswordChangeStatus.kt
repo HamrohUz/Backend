@@ -1,6 +1,6 @@
 package uz.hamroh.hamroh.util
 
 enum class PasswordChangeStatus {
-    INVALID_PASSWORD,
+    UNKNOWN_ERROR,
     UPDATE_SUCCESS,
 }
