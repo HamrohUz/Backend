@@ -2,15 +2,17 @@ package uz.hamroh.hamroh.controller
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.web.bind.annotation.*
 import uz.hamroh.hamroh.dto.AuthDto
 import uz.hamroh.hamroh.model.UserEntity
+import uz.hamroh.hamroh.services.HashService
+import uz.hamroh.hamroh.services.JwtService
 import uz.hamroh.hamroh.services.UserService
 import uz.hamroh.hamroh.util.HttpResponse
+import uz.hamroh.hamroh.util.OtpCodeGenerator
 import uz.hamroh.hamroh.util.PasswordChangeStatus
 import uz.hamroh.hamroh.util.createHttpResponse
 
@@ -19,13 +21,16 @@ import uz.hamroh.hamroh.util.createHttpResponse
 @RequestMapping("/api/auth")
 class AuthController(
     private val userService: UserService,
-    private val bCryptPasswordEncoder: BCryptPasswordEncoder
+    private val hashService: HashService,
+    private val authenticationManager: AuthenticationManager,
+    private val jwtService: JwtService,
+    private val userDetailsService: UserDetailsService
 ) {
 
     @PostMapping("/register")
     fun register(@RequestBody registerRequest: AuthDto.RegisterRequest): ResponseEntity<HttpResponse> {
         if (userService.existsByEmail(registerRequest.email).not()) {
-            val encryptedPassword = BCryptPasswordEncoder().encode(registerRequest.password)
+            val encryptedPassword = hashService.hashBcrypt(registerRequest.password)
             userService.saveUser(
                 UserEntity(
                     email = registerRequest.email,
@@ -51,9 +56,14 @@ class AuthController(
         }
 
         val foundUser = userService.findByEmail(loginRequest.email)
-        val isPasswordMatched = bCryptPasswordEncoder.matches(loginRequest.password, foundUser?.password)
+        val isPasswordMatched = hashService.checkBcrypt(loginRequest.password, foundUser?.password ?: "")
         return when {
            isPasswordMatched && foundUser?.isVerified == true -> {
+               authenticationManager.authenticate(
+                   UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
+               )
+               val userDetails = userDetailsService.loadUserByUsername(loginRequest.email)
+               val jwt = jwtService.generateToken(userDetails.username)
                 createHttpResponse(
                     status = HttpStatus.OK,
                     data = mapOf(
@@ -61,7 +71,8 @@ class AuthController(
                             name = foundUser.name,
                             contactNumber = foundUser.contactNumber,
                             email = foundUser.email
-                        )
+                        ),
+                        "token" to jwt
                     ),
                     message = "Successfully logged in"
                 )
@@ -86,7 +97,8 @@ class AuthController(
 
     @PostMapping("/send-verification-code")
     fun verify(@RequestBody verifyRequest: AuthDto.OtpCodeRequest): ResponseEntity<HttpResponse> {
-        val otp = userService.sendOtpCodeToEmail(verifyRequest.email)
+        val otp = OtpCodeGenerator.getOtp()
+        userService.sendOtpCodeToEmail(verifyRequest.email, otp)
         return createHttpResponse(
             status = HttpStatus.OK,
             data = mapOf("otp" to otp),
@@ -98,9 +110,11 @@ class AuthController(
     fun verify(@RequestBody verifyRequest: AuthDto.EmailVerificationRequest): ResponseEntity<HttpResponse> {
         if (userService.existsByEmail(verifyRequest.email)) {
             userService.verifyEmail(verifyRequest.email)
+            val jwt = jwtService.generateToken(verifyRequest.email)
             return createHttpResponse(
                 status = HttpStatus.OK,
-                message = "Email is verified"
+                message = "Email is verified",
+                data = mapOf("token" to jwt)
             )
         } else {
             return createHttpResponse(
@@ -115,7 +129,6 @@ class AuthController(
         if (userService.existsByEmail(resetPasswordRequest.email)) {
             val status = userService.changePassword(
                 email = resetPasswordRequest.email,
-                previousPassword = resetPasswordRequest.previousPassword,
                 newPassword = resetPasswordRequest.newPassword
             )
             return when (status) {
@@ -133,6 +146,24 @@ class AuthController(
             return createHttpResponse(
                 status = HttpStatus.NOT_FOUND,
                 message = "Email is not found"
+            )
+        }
+    }
+
+    @GetMapping("/check-token")
+    fun checkToken(@RequestHeader("Authorization") token: String): ResponseEntity<HttpResponse> {
+        val jwtToken = token.substringAfter("Bearer ")
+        return try {
+            val refreshedToken = jwtService.refreshToken(jwtToken) ?: ""
+            createHttpResponse(
+                status = HttpStatus.OK,
+                message = "Token is valid",
+                data = mapOf("token" to refreshedToken)
+            )
+        } catch (e: Exception) {
+            createHttpResponse(
+                status = HttpStatus.UNAUTHORIZED,
+                message = "Token is invalid or expired"
             )
         }
     }

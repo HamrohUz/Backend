@@ -7,7 +7,7 @@ interface UserService {
     fun saveUser(userEntity: UserEntity)
     fun findByEmail(email: String): UserEntity?
     fun existsByEmail(email: String): Boolean
-    fun sendOtpCodeToEmail(email: String): String
-    fun changePassword(email: String, previousPassword: String, newPassword: String): PasswordChangeStatus
+    fun sendOtpCodeToEmail(email: String, otpCode: String)
+    fun changePassword(email: String, newPassword: String): PasswordChangeStatus
     fun verifyEmail(email:String)
 }

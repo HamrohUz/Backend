@@ -29,9 +29,14 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("com.google.oauth-client:google-oauth-client-jetty:1.32.1")
+    implementation("com.google.http-client:google-http-client-gson:1.40.1")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
 }
 
 tasks.withType<KotlinCompile> {

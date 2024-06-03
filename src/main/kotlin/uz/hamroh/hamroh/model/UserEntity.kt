@@ -14,8 +14,9 @@ data class UserEntity (
     @JsonIgnore val password: String = "",
     val email: String = "",
     val contactNumber: String = "",
-    val gender: Int = 0, // 0 - FEMALE , 1 - MALE
+    val gender: Int = 0, // 0 - FEMALE , 1 - MALE,
     val isVerified: Boolean = false,
+    val imageUrl: String = "",
 )
 
 

@@ -3,6 +3,7 @@ package uz.hamroh.hamroh.services.impl
 import jakarta.mail.internet.MimeMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.thymeleaf.spring6.SpringTemplateEngine
 import uz.hamroh.hamroh.repository.UserRepository
@@ -17,10 +18,10 @@ class EmailVerificationServiceImpl(
     private val userRepository: UserRepository,
 ): EmailVerificationService {
 
-    override fun sendOtpCodeToEmail (email: String): String {
+    @Async
+    override fun sendOtpCodeToEmail (email: String, otpCode: String) {
             try {
                 val context = org.thymeleaf.context.Context()
-                val otpCode = OtpCodeGenerator.getOtp()
                 context.setVariable(VERIFICATION_CODE_ENV, otpCode)
                 val text = templateEngine.process(EMAIL_TEMPLATE, context)
                 val message = getMimeMessage()
@@ -31,7 +32,6 @@ class EmailVerificationServiceImpl(
                 helper.setTo(email)
                 helper.setText(text, true)
                 emailSender.send(message)
-                return otpCode
             } catch (exception: Exception) {
                 println(exception.message)
                 throw RuntimeException(exception.message)
