@@ -1,7 +1,6 @@
 spring:
   profiles:
     active: ${ACTIVE_PROFILE:dev}
-
   datasource:
     url: jdbc:postgresql://${POSTGRES_SQL_HOST}:${POSTGRES_SQL_PORT}/${POSTGRES_SQL_DB}
     username: ${POSTGRES_SQL_USERNAME}
@@ -39,3 +38,15 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+
+chat:
+  message:
+    max-length: 500
+  user:
+    max-connections: 100
+
+application:
+  name: ChatApplication
+  websocket:
+    path: /ws
+    allowed-origins: "*"

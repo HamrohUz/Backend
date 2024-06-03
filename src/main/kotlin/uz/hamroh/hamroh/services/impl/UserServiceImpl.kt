@@ -27,12 +27,12 @@ class UserServiceImpl(
         return userRepository.existsByEmail(email)
     }
 
-    override fun sendOtpCodeToEmail(email: String): String {
-        return emailService.sendOtpCodeToEmail(email)
+    override fun sendOtpCodeToEmail(email: String, otpCode: String) {
+        return emailService.sendOtpCodeToEmail(email, otpCode)
     }
 
-    override fun changePassword(email: String, previousPassword: String, newPassword: String): PasswordChangeStatus {
-        return authService.changePassword(email, previousPassword, newPassword)
+    override fun changePassword(email: String,  newPassword: String): PasswordChangeStatus {
+        return authService.changePassword(email, newPassword)
     }
 
     override fun verifyEmail(email: String) {
