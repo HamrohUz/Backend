@@ -1,0 +1,14 @@
+### .gitignore itseld ###
+.gitignore
+
+### virtual environment variables ###
+venv/
+
+### Alembic files
+travels/alembic/
+__pycache__
+alembic.ini
+
+schemes/
+database.py
+test.http
