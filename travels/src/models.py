@@ -70,6 +70,7 @@ travels = Table(
     Column("car_id", BigInteger, ForeignKey("cars.id")),
     Column("travel_status", String, default="active"),
     Column("passenger_capacity", Integer, nullable=False),
+    Column("passenger_actual", Integer, default=0),
     Column("travel_cost", Integer, nullable=False)
 )
 
