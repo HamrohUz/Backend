@@ -1,4 +1,8 @@
-fastapi[all]
-sqlalchemy
+fastapi[all]~=0.111.0
+sqlalchemy~=2.0.30
 asyncpg
-alembic
+alembic~=1.13.1
+python-dotenv~=1.0.1
+pydantic~=2.7.1
+greenlet
+starlette~=0.37.2
