@@ -10,6 +10,13 @@ from sqlalchemy import select, Table
 from datetime import datetime
 
 
+trip_status_translator = {
+            "Trip was created": "not_started",
+            "Started": "started",
+            "Completed": "completed",
+            "Cancelled": "cancelled"
+        }
+
 # internal server error
 async def internal_server_error(e: Exception):
     # TODO: change exceptions to export to log file in the future
